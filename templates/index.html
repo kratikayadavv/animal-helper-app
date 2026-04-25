@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StreetCare</title>
+</head>
+<body style="font-family: Arial; background-color: #f5f5f5;">
+
+<h1 style="color: #333;">StreetCare 🐾</h1>
+<p>Help street animals around you</p>
+
+<a href="/post">
+    <button style="padding:10px; margin:10px;">➕ Report New Case</button>
+</a>
+
+<h2>Reported Cases:</h2>
+
+{% for case in cases %}
+    <div style="background:white; border-radius:10px; margin:10px; padding:15px;">
+        <p><b>Animal:</b> {{ case[1] }}</p>
+        <p><b>Location:</b> {{ case[2] }}</p>
+        <p><b>Description:</b> {{ case[3] }}</p>
+        <img src="{{ url_for('static', filename='uploads/' + case[4]) }}" width="200">
+        {% if case[5] %}
+            <p><b>Helper:</b> {{ case[5] }} ({{ case[6] }})</p>
+        {% else %}
+            <p><b>Status:</b> No helper yet</p>
+        {% endif %}
+        {% if not case[5] %}
+        <a href="/help/{{ case[0] }}">
+            <button>🤝 I Can Help</button>
+        </a>
+        {% endif %}
+
+    </div>
+{% endfor %}
+
+</body>
+</html>
