@@ -1,12 +1,39 @@
-from flask import Flask, render_template
-from flask import request
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
-from flask import redirect, url_for
 import os
 
-app= Flask(__name__) #flask app created and __name__ is where the app is located 
+app = Flask(__name__)
 
-@app.route('/') # maps url path to a function ,route = URL path , / means homepage . it shows index.html
+# Create uploads folder if not exists
+if not os.path.exists("static/uploads"):
+    os.makedirs("static/uploads")
+
+# Initialize database
+def init_db():
+    conn = sqlite3.connect("animals_v3.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS cases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        animal TEXT,
+        location TEXT,
+        description TEXT,
+        image TEXT,
+        helper_name TEXT,
+        helper_contact TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Call DB init
+init_db()
+
+
+# Homepage
+@app.route('/')
 def home():
     conn = sqlite3.connect("animals_v3.db")
     cursor = conn.cursor()
@@ -18,6 +45,8 @@ def home():
 
     return render_template("index.html", cases=data)
 
+
+# Post new case
 @app.route('/post', methods=['GET', 'POST'])
 def post():
     if request.method == 'POST':
@@ -38,13 +67,15 @@ def post():
             (animal, location, description, filename)
         )
 
-
         conn.commit()
         conn.close()
 
         return redirect(url_for('home'))
 
     return render_template("post.html")
+
+
+# Help route
 @app.route('/help/<int:case_id>', methods=['GET', 'POST'])
 def help_case(case_id):
     if request.method == 'POST':
@@ -66,5 +97,7 @@ def help_case(case_id):
 
     return render_template("help.html")
 
+
+# Run app
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=10000)
